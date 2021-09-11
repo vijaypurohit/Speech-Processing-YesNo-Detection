@@ -1,0 +1,23 @@
+For first assignment:
+ I'm putting the steps here: 
+1 Capture speech data using Cooledit software (16Khz, 16 bit and Mono channel) --- buffer
+2 Correct the DC shift and normalize the data to + or -5000 (max)
+3 Compute the ambient noise (noise floor)
+4 Put markers on word_start and word_end
+5 Place the segmented word in a file
+6 Open this file and put data in an array
+7 Generate the first frame and compute the Energy & ZCR
+8 Do this for all the subsequent frames
+9 Now based on the data generated, decide if the word is a ‘Yes’ or a ‘No’.
+10. Echo decision.
+
+submit your first assignment (Yes/No detection ) through the link given below.
+Folder name should be: rollno_yes_no.zip
+You have to upload the complete project of visual studio. Remove the debug folder to reduce its size before uploading.
+1) Your code need to be properly commented.
+2) Please put a readme.txt file briefly explaining what you have done in the code and the instruction to execute your code.
+3) If your code does not compile, no marks will be awarded.
+4) Follow a proper naming convention.
+Deadline to upload:
+16th August 2021, Monday (EOD)
+Link to upload: 

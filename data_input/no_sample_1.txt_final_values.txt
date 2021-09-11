@@ -1,0 +1,61 @@
+---- WELCOME TO YES/NO Speech Detector ----
+-Common Settings are : 
+ Frame Size : 100
+ Amplitutde Value to Scale : 5000
+ Max Frames to Consider : 400
+ Intital Header Lines Ignore Count : 0
+ Intital Noise Frames Count : 5
+ Intital Samples to Ignore : 0
+ Threshold Energy Factor : 3
+ last Fourty Perc Threshold : 30
+----------------
+
+
+---- FileName : no_sample_1.txt ----
+
+ TOTAL SAMPLES : 13925
+ TOTAL FRAMES : 139
+ DC SHIFT needed : 0.023555
+ Maximum Amplitude : 9852
+ Normalization Factor : 0.507511
+ 
+--------
+
+
+---- Number of Initial Noise Frames : 5 ----
+
+ Avg Noise Energy : 208.036209
+ Total Noise ZCR : 139.0
+ Threshold ZCR : 27.8
+ Threshold Energy(avg noise*3) : 624.10863
+ 
+--------
+
+
+---- Segregated Data Saved in File: ../data_input/no_sample_1.txt_norm_segregated_sound.txt ----
+
+ START Frame : 28	 END Frame : 112
+ Total Frames : 85
+ Starting Sample : 2900	 Ending Sample : 11300
+
+ Average Energy of the segregated voice data : 832422.875000
+ Average ZCR of the segregated voice data : 4.3
+
+--------
+
+
+---- Final OutPut ----
+
+lLowZCRcount = 42
+rHighZCRcount = 21
+1===> Voice Data is NO signal
+
+total frames : 85 Count Fricatives : 0
+2==>  NO signal
+
+Last 40perc frames Total : 34.000000
+ Total ZCR : 258.000000
+ Avg ZCR : 7.588235
+3==>  NO signal
+
+---------------- END -------------------

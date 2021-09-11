@@ -1,0 +1,149 @@
+(1)
+Clipped Sir provided voice data to individual 8 parts.
+and worked on that.
+
+take necessary file pointers for input, output, normalised input, voice extraction.
+-----------
+
+(2)
+Read from file provided - all the samples data. 
+
+DC Shift Steps:
+read each samples. also can be saved in array samples[60000]
+SUM over all x_i (+ve or -ve) and then taking
+dcShift = sum_above/totalSamples
+(total samples after ignorning header data if there or other)
+
+meanwhile in same loop calculate max AMP.
+
+Normalization:
+(eachX_i - dcShift)*5000/ (max of abs(AMP)))
+simultaneously output it in norm_file
+or save in norm_samples_array[60000] (to be able to use easy without reading file)
+
+(3)
+First we have to loop over normalised data
+calculating 
+
+Energy_i = x_i * x_i (over 100 samples for one frame i )
+AvgEnergy_i = Energy_i/100(Frames)
+
+cntZCR_i = (total X_i samples crossing 0 for 100 frames)
+{ cntZCR[i] +=  (s_i_1*s_i < 0);
+  s_i_1 = s_i;
+}
+AvgZCR_i = cntZCR_i / 100
+
+TotEnergy = Sum of all AvgEnergy_i for all frames
+
+then
+avgEnergy[i]/=sizeFrame;
+avgZCR[i] = cntZCR[i]/sizeFrame;
+
+//noise
+Calculating ZCR and Energy of First Few (5-10) Frames (Noise) (after 2nd step)
+
+AvgNoise_ZCR = SUM_avgZCR_first_few / first_few_frames
+
+countNoise_ZCR = SUM_countZCR_first_few / first_few_frames
+AvgNoise_Energy = SUM_NoiseE_first_few / first_few_frames
+
+ZCR_Threshold = countNoise_ZCR/first_few_frames
+Energy_Threshold = AvgNoise_Energy * 3 ((3-10%))
+
+(4)
+//one logic 
+//if it works, you can from start or end marker, segregate data and run in cool edit to check its accuracy
+
+bool flag =false;
+Loop over all the frames(i) (skip last 2-3 frames)
+   IF [ AvgEnergy_i+1 > Energy_Threshold OR AvgZCR_i+1 < ZCR_Threshold ]
+	IF [ Check AvgEnergy of next i+2 and i+3 also > Energy_Threshold && flag=false]
+		(increasing curve)
+		startFrameMarker(seg) = i (frame num) (multiple segment if any)
+		flag =  trur start detected
+   ELSEIF [ 
+		flag detected &&  AvgZCR_i > ZCR_Threshold  && AvgEnergy_i < Energy_Threshold
+		&& AvgEnergy_i-1 < Energy_Threshold && AvgEnergy_i-2 < Energy_Threshold
+	  ] (decreasing curve)
+
+		stopFrameMarker(seg++) = i
+		flag = false (to detect other marker)
+// another logic
+for(int i=0; i<cntTotFrames-3; ++i){
+	if(!flag && avgEnergy[i+1] > thresholdEnergy && avgEnergy[i+2] > thresholdEnergy && avgEnergy[i+3] > thresholdEnergy){
+					start = i;
+					flag = 1;
+	}
+	else if(flag && avgEnergy[i+1] <= thresholdEnergy && avgEnergy[i+2] <= thresholdEnergy&& avgEnergy[i+3] <= thresholdEnergy){
+		end = i;
+		flag = 0;
+		break;
+	}
+}
+if(flag == 1) end = cntTotFrames - 5; //if end is not found then making the last frame - 3 as the end marker for the word
+	long startSample= (start+1)*sizeFrame;
+	long endSample= (end+1)*sizeFrame;
+	long totFramesVoice = end-start+1;
+
+
+(5)Also using Markers segmented data can be put into their separate file
+(6) Opening New file and putting data in an array OR 
+putting data in array from the point of normalization 
+I think both will work, 2nd one being easy I think, have to maintain single array for one original file.
+
+(7-8)Then for each segment from startFrameMarker to stopFrameMarker
+AvgEnergy and AvgZCR can be calculated by looping around 
+calculating first total things from start to stop and then dividing by total frames between them
+	
+float voiceAvgEnergy=0, voicecntZCR=0, voiceavgZCR=0;
+	for(i=start;i <= end;i++){
+			voiceAvgEnergy+=avgEnergy[i];
+			voicecntZCR+=cntZCR[i];
+			voiceavgZCR+=avgZCR[i];
+	}
+	voiceAvgEnergy/=totFramesVoice;
+	voicecntZCR/=totFramesVoice;
+	voiceavgZCR/=totFramesVoice;
+
+
+(9)
+//logic 1
+Last 40% frames has high CNT of ZCR then it is YES ELSE NO
+Last40%AvgZCR = Last40%SUMofZCR/40%frames
+if(avgLastFourtyPercZCR >= lastFourtyPercThreshold(30,40 anything that works for you))
+		printf("  YES signal\n"); 
+	else
+		printf("  NO signal\n");
+//logic 2
+count fricatives.
+ for ( i=start; i<=end-1; ++i){
+		if(cntZCR[i] > 15 && cntZCR[i+1] > 15)
+			cntFricatives++;
+	}
+if(cntFricatives >= totFramesVoice * 0.3)	
+		printf("= YES signal\n"); 
+	else
+		printf("  NO signal\n"); 
+//logic 3
+
+		for(i=end; i >= start;i--)
+		{
+			if(avgZCR[i] > voiceavgZCR && avgEnergy[i] < voiceAvgEnergy)
+				rHighZCRcount++;
+			if(avgZCR[start+end-i] < voiceavgZCR && avgEnergy[i] < voiceAvgEnergy)
+				lLowZCRcount++;
+		}
+
+		midframe=(end+start)/2;
+		if(midframe == 0)
+			printf("Non speech signal\n");
+		else if(rHighZCRcount > 10*300/sizeFrame)
+			printf(" Voice Data is YES signal\n");	
+		else
+			printf(" Voice Data is NO signal\n");
+		printf("rHighZCRcount(%ld) > %d\n", rHighZCRcount,10*300/sizeFrame );
+10
+close file streams
+print necessary data whenever necessary
+  
